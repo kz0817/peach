@@ -15,9 +15,9 @@ P3_SECTORS := $(shell expr 10 '*' $(MiB) / $(SECT_SZ))
 P3_START_SECT := $(shell expr $(P2_END_SECT) + 1)
 P3_END_SECT := $(shell expr $(P3_START_SECT) + $(P3_SECTORS) - 1)
 
-
-
-#P4SZ := 
+P4_START_SECT := $(shell expr $(P3_END_SECT) + 1)
+P4_END_SECT := $(shell expr $(IMG_SIZE) / $(SECT_SZ) - 1)
+P4_SECTORS := $(shell expr $(P4_END_SECT) - $(P4_START_SECT) + 1)
 
 mbr.img: blank.img
 	cp $< $@
@@ -25,6 +25,7 @@ mbr.img: blank.img
 	parted -s $@ mkpart primary $(P1_START_SECT)s $(P1_END_SECT)s
 	parted -s $@ mkpart primary $(P2_START_SECT)s $(P2_END_SECT)s
 	parted -s $@ mkpart primary $(P3_START_SECT)s $(P3_END_SECT)s
+	parted -s $@ mkpart extended $(P4_START_SECT)s $(P4_END_SECT)s
 
 # The following command line creates a sparse file.
 blank.img:
@@ -39,3 +40,15 @@ show:
 	@echo "P1_SECTORS   :" $(P1_SECTORS)
 	@echo "P1_START_SECT:" $(P1_START_SECT)
 	@echo "P1_END_SECT  :" $(P1_END_SECT)
+	@echo
+	@echo "P2_SECTORS   :" $(P2_SECTORS)
+	@echo "P2_START_SECT:" $(P2_START_SECT)
+	@echo "P2_END_SECT  :" $(P2_END_SECT)
+	@echo
+	@echo "P3_SECTORS   :" $(P3_SECTORS)
+	@echo "P3_START_SECT:" $(P3_START_SECT)
+	@echo "P3_END_SECT  :" $(P3_END_SECT)
+	@echo
+	@echo "P4_SECTORS   :" $(P4_SECTORS)
+	@echo "P4_START_SECT:" $(P4_START_SECT)
+	@echo "P4_END_SECT  :" $(P4_END_SECT)

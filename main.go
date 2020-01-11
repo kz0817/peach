@@ -19,7 +19,7 @@ type PartitionTable struct {
     Type uint8
     EndCHS [3]uint8
     StartLBA uint32
-    EndLBA uint32
+    NumSectors uint32
 }
 
 func openDrive(drivePath string) *os.File {
@@ -31,15 +31,10 @@ func openDrive(drivePath string) *os.File {
     return drive
 }
 
-func main() {
-    drivePath := flag.String("target", "", "target file")
-    flag.Parse()
-    fmt.Printf("Target drive: %s\n", *drivePath)
-
-    drive := openDrive(*drivePath)
-
+func readPartitionRecords(
+  drive *os.File,
+  partitions *[NUM_PRIMARY_PARTITIONS]PartitionTable) {
     drive.Seek(POS_PART_TABLE, 0)
-    var partitions [NUM_PRIMARY_PARTITIONS]PartitionTable
     for i := 0; i < NUM_PRIMARY_PARTITIONS; i++ {
         err := binary.Read(drive, binary.LittleEndian, &partitions[i])
         if err != nil {
@@ -47,6 +42,18 @@ func main() {
             panic(err)
         }
     }
+}
+
+
+func main() {
+    drivePath := flag.String("target", "", "target file")
+    flag.Parse()
+    fmt.Printf("Target drive: %s\n", *drivePath)
+
+    drive := openDrive(*drivePath)
+
+    var partitions [NUM_PRIMARY_PARTITIONS]PartitionTable
+    readPartitionRecords(drive, &partitions)
 
     for i := 0; i < NUM_PRIMARY_PARTITIONS; i++ {
         fmt.Printf("%d, %v\n", i, partitions[i])
