@@ -55,6 +55,14 @@ func readPartitionRecords(
 }
 
 
+func (part *Partition) Load(entry *PartitionTableEntry) {
+    part.StartSector = uint64(entry.StartLBA)
+    part.NumSectors = uint64(entry.NumSectors)
+    part.StartOffset = uint64(entry.StartLBA * SECTOR_SIZE)
+    part.Size = uint64(entry.NumSectors * SECTOR_SIZE)
+}
+
+
 func main() {
     drivePath := flag.String("target", "", "target file")
     flag.Parse()
@@ -71,10 +79,7 @@ func main() {
         partitionEntry := &partitionEntries[i]
         if partitionEntry.StartLBA != 0 {
             var part Partition
-            part.StartSector = uint64(partitionEntry.StartLBA)
-            part.NumSectors = uint64(partitionEntry.NumSectors)
-            part.StartOffset = uint64(partitionEntry.StartLBA * SECTOR_SIZE)
-            part.Size = uint64(partitionEntry.NumSectors * SECTOR_SIZE)
+            part.Load(partitionEntry)
             partitions = append(partitions, part)
         }
     }
